@@ -1,0 +1,6 @@
+interface:
+  display_name: "Set Up Project Delivery"
+  short_description: "Docker setup, optional PyPI and server deployment"
+  default_prompt: "Use $setup-project-delivery to set up Docker for this project and help me select optional PyPI publishing and automatic server deployment."
+policy:
+  allow_implicit_invocation: false
