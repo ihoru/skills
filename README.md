@@ -15,7 +15,7 @@ These skills are maintained in their tool repositories. Follow the links for ins
 
 | Skill | Description | Typical use cases |
 | --- | --- | --- |
-| [local-transcription](https://github.com/ihoru/local-transcription/tree/main/skills/local-transcription) | Transcribe local audio or video into speaker-labeled TXT and SRT, then proofread the results. | Transcribe recordings; generate subtitles; review transcription errors. |
+| [local-transcription](https://github.com/ihoru/local-transcription/blob/main/skills/local-transcription/INSTALL.md) | Transcribe local audio or video into speaker-labeled TXT and SRT, then proofread the results. | Transcribe recordings; generate subtitles; review transcription errors. |
 
 ## Getting started
 
