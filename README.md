@@ -1,17 +1,51 @@
 # Agent Skills
 
-Reusable skills for Codex that turn common development tasks into repeatable workflows.
+A directory of my reusable skills for Codex, including skills maintained here and skills packaged with other tools.
 
-## Available skills
+## Skills in this repository
 
 | Skill | Description | Typical use cases |
 | --- | --- | --- |
 | [glab-address-discussions](glab-address-discussions/SKILL.md) | Fetch unresolved GitLab merge-request discussions, implement actionable feedback, and validate changes. | Address reviewer feedback; track unresolved comments through implementation. |
 | [setup-project-delivery](setup-project-delivery/SKILL.md) | Configure Docker or Compose, optional PyPI publishing, and optional GitHub Actions deployment to a server. | Containerize an application; publish a Python package; deploy automatically after successful `main` checks. |
 
+## Skills packaged with tools
+
+These skills are maintained in their tool repositories. Follow the links for installation and usage; this directory contains only a brief catalog entry.
+
+| Skill | Description | Typical use cases |
+| --- | --- | --- |
+| [local-transcription](https://github.com/ihoru/local-transcription/tree/main/skills/local-transcription) | Transcribe local audio or video into speaker-labeled TXT and SRT, then proofread the results. | Transcribe recordings; generate subtitles; review transcription errors. |
+
 ## Getting started
 
-Clone this repository, then run the following from its root to install a selected skill. Set `skill` to a name from the table above.
+### Install through your coding agent
+
+Pass the repository link to your coding agent with the skills you want. For a skill packaged with a tool, pass its linked skill directory so the agent installs from the owning repository. For Codex, copy one of these prompts.
+
+**Install one skill:**
+
+```text
+Install setup-project-delivery from https://github.com/ihoru/skills for use in Codex. Use the repository's default branch.
+```
+
+**Install several named skills:**
+
+```text
+Install glab-address-discussions and setup-project-delivery from https://github.com/ihoru/skills for use in Codex. Use the repository's default branch.
+```
+
+**Browse first and choose:**
+
+```text
+Read the skill directory in https://github.com/ihoru/skills and list all skills, including those linked from other tool repositories, with a short description and use cases for each. Ask me to choose one or more, then install only my selected skills for use in Codex from their owning repositories. Follow linked skill paths and use the default branch for repository-only links.
+```
+
+These prompts install the skills; invoke them separately to perform a task.
+
+### Install manually
+
+For a skill listed under **Skills in this repository**, clone this repository and run the following from its root. Set `skill` to the selected name.
 
 ```sh
 skill=setup-project-delivery
@@ -20,6 +54,8 @@ ln -s "$PWD/$skill" "$HOME/.agents/skills/$skill"
 ```
 
 The symlink keeps the repository as the source of truth: pulling updates also updates the installed skill. Keep the checkout in place. Existing installations do not need another symlink.
+
+### Use an installed skill
 
 Invoke an installed skill in Codex while working in the target project:
 
