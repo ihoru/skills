@@ -6,6 +6,7 @@ A directory of my reusable skills for Codex, including skills maintained here an
 
 | Skill | Description | Typical use cases |
 | --- | --- | --- |
+| [book-notes-from-kindle](book-notes-from-kindle/SKILL.md) | Turn Kindle HTML or My Clippings.txt into Markdown book notes and English-Russian vocabulary, with optional Sheets and Notion publication. | Summarize book highlights; collect quotations and exercises; maintain a vocabulary spreadsheet and book library. |
 | [glab-address-discussions](glab-address-discussions/SKILL.md) | Fetch unresolved GitLab merge-request discussions, implement actionable feedback, and validate changes. | Address reviewer feedback; track unresolved comments through implementation. |
 | [setup-project-delivery](setup-project-delivery/SKILL.md) | Configure Docker or Compose, optional PyPI publishing, and optional GitHub Actions deployment to a server. | Containerize an application; publish a Python package; deploy automatically after successful `main` checks. |
 
@@ -68,6 +69,10 @@ Use $setup-project-delivery to add Docker Compose and automatic deployment on ma
 ```
 
 `setup-project-delivery` is manually invoked; Codex will not select it automatically.
+
+```text
+Use $book-notes-from-kindle to turn this Kindle export into a Markdown file with vocabulary, theory, exercises, humor, books, and quotations. Publish the vocabulary to Book Vocabulary and the notes under Book Notes in Notion. Return links only.
+```
 
 ### Prerequisites
 
