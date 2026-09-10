@@ -25,6 +25,12 @@ Honor explicit changes in the current request. Otherwise:
 - Attribute scientific assertions to the author. Suggest a separate, optional evidence check after finishing the notes; do not silently turn a summary into a research review.
 - Keep AI assistance ideas distinct from the book's recommendations. Suggest them only where useful, and activate no automations or outgoing messages without the user's request.
 
+## Page-number references by destination
+
+Preserve book page-number references in the Markdown file and working extraction. For the Notion copy, omit all page-number references, including parenthetical citations, inline or standalone page labels, quotation source page numbers, and page-number columns in tables. Adjust surrounding punctuation and wording so the text reads naturally; preserve quotations, author attribution, book/resource links, and unrelated numbers. Keep this transformation confined to the Notion copy so the Markdown retains its source references.
+
+Honor any explicit destination-specific preference in the current conversation without asking again. When Notion publication is requested and the default page-number omission applies, verify before completion that the Notion copy has no page-number references and the Markdown still retains them.
+
 ## Create the Markdown file
 
 Use the book's short title for the filename and spreadsheet tab. Include:
@@ -35,7 +41,7 @@ Use the book's short title for the filename and spreadsheet tab. Include:
 4. Practical recommendations and exercises with concrete steps; distinguish editorial adaptations and optional AI assistance.
 5. Humor or jokes actually present; say when none are found.
 6. Recommended or referenced books, distinguishing explicit recommendations from mere citations; list other resources separately.
-7. Quotations with page/location references and source-supported attribution. Separate embedded quotations from selected lines of the author's prose.
+7. Quotations with source-supported attribution and page-number references in Markdown, following the destination rule above for Notion. Separate embedded quotations from selected lines of the author's prose.
 8. Unresolved references and optional follow-up checks, when applicable.
 
 For vocabulary, remove case/punctuation duplicates and obvious export artifacts. Preserve meaningful related forms such as an adjective and its noun. Translate the sense supported by context; explain alternatives when an isolated word is ambiguous. Write natural original example sentences. Do not automatically strip digits from terms: distinguish genuine lexical characters from footnote markers.
@@ -43,6 +49,12 @@ For vocabulary, remove case/punctuation duplicates and obvious export artifacts.
 For quotations, preserve wording except obvious export spacing artifacts. Quotation marks around a term or example sentence do not automatically qualify it for the collection. Never invent attribution. Retain incomplete passages as incomplete rather than reconstructing missing text.
 
 The Markdown file contains all findings, including the full vocabulary table. Add verified destination links after publication.
+
+## Offer the remaining workflow
+
+After saving and inspecting the Markdown file, offer the remaining publication steps in one concise question: save the vocabulary to a book tab in `Book Vocabulary`, and save the full notes to `Book Notes` under `Personal Home` in Notion. These are proposed destinations until verified through the publication steps below. Include the Markdown link so the user can review the prepared content before choosing.
+
+Offer both destinations by default unless the user requested local-only output or already declined publication. If only one destination was requested, complete it and offer the other. When publication is already authorized in the conversation, proceed with that scope without asking again. A reply such as “yes”, “both”, or “proceed” to the combined offer authorizes both stated destinations.
 
 ## Publish when requested
 
@@ -61,4 +73,4 @@ Use titles to discover destinations; keep private account IDs, private URLs, sou
 - Match quotations to the export; label missing attribution and references.
 - Save and inspect the Markdown file before publishing.
 - Verify each requested remote destination before reporting success. A local file is not proof of publication.
-- Return only the Markdown, spreadsheet, and Notion links applicable to the request, plus any concrete unresolved blocker. Skill creation, installation, Git publication, and evidence checking are separate actions unless requested.
+- Honor explicit output-format requests. Return the applicable Markdown, spreadsheet, and Notion links; unless the user requested links-only output, add a brief verified status and any concrete unresolved blocker. Include the remaining publication offer only when publication remains available; omit it for local-only or declined-publication cases. Keep the findings in the artifact. Skill creation, installation, Git publication, and evidence checking are separate actions unless requested.
