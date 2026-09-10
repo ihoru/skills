@@ -1,0 +1,135 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "id": "timescale",
+      "repository": "https://github.com/timescale/pg-aiguide.git",
+      "ref": "main",
+      "commit": "2bf9f11df6175d555e9a7f63325b226dca71c1b7",
+      "kind": "skills",
+      "attribution": "Timescale, Inc., d/b/a Tiger Data",
+      "license": {
+        "spdx": "Apache-2.0",
+        "evidence": [
+          {
+            "path": "LICENSE",
+            "sha256": "5c272e206669b79ee20fa89fa8fa888d5b56186f16c55a5614753ad3412e2ae9"
+          },
+          {
+            "path": "NOTICE",
+            "sha256": "505ea3e3e023dcc469adaf6134a6d166bc91b18e3a7565665e65bec96f6ef02d"
+          }
+        ]
+      },
+      "selections": [
+        {
+          "path": "skills/postgres-database-migration",
+          "name": "postgres-database-migration",
+          "destination": "vendor/timescale/postgres-database-migration",
+          "tree": "2e8eda89f003873af5f37459b5336237604b0084"
+        }
+      ],
+      "snapshot_sha256": "9c4c4070e8bffe59b7f342f5a38a43fe1eba071370fd7fd23f5c303040a67833"
+    },
+    {
+      "id": "vercel",
+      "repository": "https://github.com/vercel-labs/agent-skills.git",
+      "ref": "main",
+      "commit": "063bee94c3f4df8453406c830b0a7df0f2860278",
+      "kind": "skills",
+      "attribution": "Vercel Engineering",
+      "license": {
+        "spdx": "MIT",
+        "evidence": [
+          {
+            "path": "skills/react-best-practices/SKILL.md",
+            "field": "license",
+            "sha256": "e5dcffe836b6ec8a58e492419b550e65fb8cbdc308503979e5dacb33ac7ea3b7"
+          }
+        ]
+      },
+      "selections": [
+        {
+          "path": "skills/react-best-practices",
+          "name": "vercel-react-best-practices",
+          "destination": "vendor/vercel/vercel-react-best-practices",
+          "tree": "343db72180d05814949fef7d46be96b5c6ee86b3"
+        }
+      ],
+      "snapshot_sha256": "fe509c488ff7f25f4bd095e4cf26339cab68a515c536a239e7adbcdfc2fd15fa"
+    },
+    {
+      "id": "redis",
+      "repository": "https://github.com/redis/agent-skills.git",
+      "ref": "main",
+      "commit": "a84871d065f398fed55e1633f66b66f731eb4e2b",
+      "kind": "skills",
+      "attribution": "Redis, Inc.",
+      "license": {
+        "spdx": "MIT",
+        "evidence": [
+          {
+            "path": "LICENSE",
+            "sha256": "77f38ee68488a9cdb7261e89e8cb2f22e074bb6d802727e5f3a685b9478a4da2"
+          }
+        ]
+      },
+      "selections": [
+        {
+          "path": "skills/redis-core",
+          "name": "redis-core",
+          "destination": "vendor/redis/redis-core",
+          "tree": "daeb3ccb146628c35a53775a43163440c3fa55dd"
+        },
+        {
+          "path": "skills/redis-connections",
+          "name": "redis-connections",
+          "destination": "vendor/redis/redis-connections",
+          "tree": "3baf7a4f1ab9bd76e18d62e5adc8988d153e650c"
+        },
+        {
+          "path": "skills/redis-security",
+          "name": "redis-security",
+          "destination": "vendor/redis/redis-security",
+          "tree": "408b2011a7516a1bd56bc0c8d7b1bb914beb1d0d"
+        },
+        {
+          "path": "skills/redis-observability",
+          "name": "redis-observability",
+          "destination": "vendor/redis/redis-observability",
+          "tree": "e9519fa8cf04ef058b5df62d6e9f59b83d5dcce8"
+        }
+      ],
+      "snapshot_sha256": "a1604a6e6edaf36338b3ede46fe833c5bcf02deb729d480abc4807fc47264c34"
+    },
+    {
+      "id": "trailofbits",
+      "repository": "https://github.com/trailofbits/skills.git",
+      "ref": "main",
+      "commit": "321ccfe628eca0d314b0ee4eaffcdd8a05639aaf",
+      "kind": "plugin",
+      "attribution": "Trail of Bits; Differential Review by Omar Inuwa",
+      "license": {
+        "spdx": "CC-BY-SA-4.0",
+        "evidence": [
+          {
+            "path": "LICENSE",
+            "sha256": "7abe19ec9bb73b36141b999b861d24ad855e808bafe0f81e84cce28556f6c297"
+          }
+        ]
+      },
+      "selections": [
+        {
+          "path": "plugins/differential-review",
+          "name": "differential-review",
+          "destination": "vendor/trailofbits/differential-review",
+          "tree": "71281098ced2d7d1e0892f41b8abcd839a4364dc"
+        }
+      ],
+      "marketplace": "trailofbits",
+      "marketplace_path": ".claude-plugin/marketplace.json",
+      "marketplace_entry_sha256": "8c23db6be029d660b640d3bfd6d673dd3484e9c6cddc4ad5ec4e8df60dfc11e3",
+      "snapshot_sha256": "955f3d93a1f94572c86713cedd0d6402107e27c45f0386b8ecbabdc392ac1553"
+    }
+  ]
+}
