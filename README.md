@@ -7,6 +7,7 @@ A directory of my reusable skills for Codex, including skills maintained here an
 | Skill | Description | Typical use cases |
 | --- | --- | --- |
 | [book-notes-from-kindle](book-notes-from-kindle/SKILL.md) | Turn Kindle HTML or My Clippings.txt into Markdown book notes and English-Russian vocabulary, with optional Sheets and Notion publication. | Summarize book highlights; collect quotations and exercises; maintain a vocabulary spreadsheet and book library. |
+| [dockerfile-review](dockerfile-review/SKILL.md) | Review Dockerfiles and related container configuration for evidence-backed correctness, security, reproducibility, and operability improvements. | Audit a Dockerfile; assess Compose or Kubernetes context; implement focused fixes when explicitly requested. |
 | [glab-address-discussions](glab-address-discussions/SKILL.md) | Fetch unresolved GitLab merge-request discussions, implement actionable feedback, and validate changes. | Address reviewer feedback; track unresolved comments through implementation. |
 | [setup-project-delivery](setup-project-delivery/SKILL.md) | Configure Docker or Compose, optional PyPI publishing, and optional GitHub Actions deployment to a server. | Containerize an application; publish a Python package; deploy automatically after successful `main` checks. |
 
@@ -91,9 +92,14 @@ Use $setup-project-delivery to add Docker Compose and automatic deployment on ma
 Use $book-notes-from-kindle to turn this Kindle export into a Markdown file with vocabulary, theory, exercises, humor, books, and quotations. Publish the vocabulary to Book Vocabulary and the notes under Book Notes in Notion. Return links only.
 ```
 
+```text
+Review this repository's Dockerfile for concrete improvements. Include related build and Kubernetes configuration, cite exact lines, and do not modify files.
+```
+
 ### Prerequisites
 
 - **GitLab discussions:** Python 3 and `glab`, authenticated to the relevant GitLab host, plus a local checkout of the merge request's source branch. Posting replies and resolving discussions require an explicit request.
 - **Project delivery:** The project's build tools and Docker for container verification. Optional server deployment needs GitHub access and root SSH access for bootstrap; Actions uses a separate restricted deployment identity. Optional PyPI publishing needs access to the intended PyPI account or project.
+- **Dockerfile review:** No required external tools for static review. Docker Buildx, the repository's linter, and image scanners can provide additional evidence when already available and authorized.
 
 Each skill's linked instructions describe its workflow and validation in detail. When adding or changing a skill, keep its catalog entry and invocation example up to date.

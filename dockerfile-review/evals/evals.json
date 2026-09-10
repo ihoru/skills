@@ -1,0 +1,46 @@
+{
+  "skill_name": "dockerfile-review",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Review this production Dockerfile and related files. Report actionable findings only; do not edit anything.",
+      "expected_output": "A concise line-cited review that finds the persisted secret, stale apt-index pattern, broad unignored copy, and shell-form entrypoint without inventing runtime or digest-policy defects.",
+      "files": [
+        "evals/fixtures/definite-defects/Dockerfile",
+        "evals/fixtures/definite-defects/.dockerignore",
+        "evals/fixtures/definite-defects/.env.production",
+        "evals/fixtures/definite-defects/app.py"
+      ],
+      "expectations": [
+        "Every finding cites an exact fixture path and line and includes severity, evidence, impact, and remediation.",
+        "The review identifies the literal credential persisted through ENV as a confirmed finding.",
+        "The review identifies apt-get update and install split across layers and missing apt-list cleanup.",
+        "The review identifies that COPY . includes the fixture's .env.production because .dockerignore does not exclude it.",
+        "The review identifies shell-form ENTRYPOINT signal-handling behavior.",
+        "Digest pinning is not presented as a confirmed violation without an explicit repository policy.",
+        "The review does not claim the final process runs as root without checking base-image metadata.",
+        "The reviewer makes no edits."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Audit this Dockerfile and Kubernetes workload for correctness and security improvements. Be strict but evidence-based, and do not change files.",
+      "expected_output": "No false positives for intentional checksum-verified ADD, scratch, the numeric user, or Dockerfile health behavior in Kubernetes; any finding must be grounded in the supplied files.",
+      "files": [
+        "evals/fixtures/contextual-safe/Dockerfile",
+        "evals/fixtures/contextual-safe/main.go",
+        "evals/fixtures/contextual-safe/deployment.yaml"
+      ],
+      "expectations": [
+        "The review does not flag ADD solely because the checksum-verified ADD instruction is used.",
+        "The review does not claim scratch must contain a shell, curl, package manager, or certificates without evidence that the application needs them.",
+        "The review does not claim Kubernetes consumes Dockerfile HEALTHCHECK metadata.",
+        "The review does not report the supplied Kubernetes startup, readiness, or liveness probes as missing.",
+        "The numeric non-root USER is not reported as a defect.",
+        "A missing explicit seccomp profile is not reported as a defect without repository policy or runtime evidence that establishes the requirement.",
+        "Digest pinning of the builder is not reported as a finding without an explicit repository policy.",
+        "The reviewer makes no edits."
+      ]
+    }
+  ]
+}
