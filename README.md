@@ -10,6 +10,23 @@ A directory of my reusable skills for Codex, including skills maintained here an
 | [glab-address-discussions](glab-address-discussions/SKILL.md) | Fetch unresolved GitLab merge-request discussions, implement actionable feedback, and validate changes. | Address reviewer feedback; track unresolved comments through implementation. |
 | [setup-project-delivery](setup-project-delivery/SKILL.md) | Configure Docker or Compose, optional PyPI publishing, and optional GitHub Actions deployment to a server. | Containerize an application; publish a Python package; deploy automatically after successful `main` checks. |
 
+## Pinned upstream skills
+
+These six upstream skills are exact, commit-pinned snapshots. Their top-level links point into `vendor/`; license evidence and attribution are recorded in [upstreams.json](upstreams.json).
+
+| Skill | Typical use |
+| --- | --- |
+| [postgres-database-migration](postgres-database-migration/SKILL.md) | Plan and test PostgreSQL schema migrations. |
+| [vercel-react-best-practices](vercel-react-best-practices/SKILL.md) | Review React and Next.js performance. |
+| [redis-core](redis-core/SKILL.md) | Choose Redis data structures and key conventions. |
+| [redis-connections](redis-connections/SKILL.md) | Configure clients, pooling, and pipelining. |
+| [redis-security](redis-security/SKILL.md) | Configure Redis authentication, TLS, and access controls. |
+| [redis-observability](redis-observability/SKILL.md) | Monitor Redis and investigate performance. |
+
+[Trail of Bits Differential Review](https://github.com/trailofbits/skills/tree/main/plugins/differential-review) is tracked as a **complete native Codex plugin**, including its agents, command, skill, and references. It is installed from its pinned Git marketplace rather than copied into this catalog.
+
+Follow [upstream maintenance and post-merge activation](docs/upstream-skills.md) to update or install this group. For example, after activation: `Use $redis-core to review this cache's data model.`
+
 ## Skills packaged with tools
 
 These skills are maintained in their tool repositories. Follow the links for installation and usage; this directory contains only a brief catalog entry.

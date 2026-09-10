@@ -1,0 +1,2 @@
+# Preserve upstream bytes and whitespace in exact snapshots.
+vendor/** -text -whitespace
