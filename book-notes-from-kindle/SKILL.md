@@ -29,7 +29,7 @@ Honor explicit changes in the current request. Otherwise:
 
 Preserve book page-number references in the Markdown file and working extraction. For the Notion copy, omit all page-number references, including parenthetical citations, inline or standalone page labels, quotation source page numbers, and page-number columns in tables. Adjust surrounding punctuation and wording so the text reads naturally; preserve quotations, author attribution, book/resource links, and unrelated numbers. Keep this transformation confined to the Notion copy so the Markdown retains its source references.
 
-Honor any explicit destination-specific preference in the current conversation without asking again. Before completing publication, verify that Notion has no page-number references and the Markdown still retains them.
+Honor any explicit destination-specific preference in the current conversation without asking again. When Notion publication is requested and the default page-number omission applies, verify before completion that the Notion copy has no page-number references and the Markdown still retains them.
 
 ## Create the Markdown file
 
@@ -73,4 +73,4 @@ Use titles to discover destinations; keep private account IDs, private URLs, sou
 - Match quotations to the export; label missing attribution and references.
 - Save and inspect the Markdown file before publishing.
 - Verify each requested remote destination before reporting success. A local file is not proof of publication.
-- Return the applicable Markdown, spreadsheet, and Notion links, a brief verified status, any concrete unresolved blocker, and the remaining publication offer described above. Keep the findings in the artifact. Skill creation, installation, Git publication, and evidence checking are separate actions unless requested.
+- Honor explicit output-format requests. Return the applicable Markdown, spreadsheet, and Notion links; unless the user requested links-only output, add a brief verified status and any concrete unresolved blocker. Include the remaining publication offer only when publication remains available; omit it for local-only or declined-publication cases. Keep the findings in the artifact. Skill creation, installation, Git publication, and evidence checking are separate actions unless requested.
