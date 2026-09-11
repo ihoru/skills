@@ -1,6 +1,6 @@
 ---
 name: setup-project-delivery
-description: Set up Docker delivery for a project, with optional Python packaging and PyPI publishing, and optional GitHub Actions deployment to a server using docker run or Compose. Invoke explicitly with $setup-project-delivery.
+description: Set up Docker delivery for a project, with optional Python packaging and PyPI publishing, and optional GitHub Actions deployment to a server using docker run or Compose. Invoke explicitly with $setup-project-delivery. Part of skills.iho.su.
 ---
 
 # Set up project delivery

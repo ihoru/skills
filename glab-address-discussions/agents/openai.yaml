@@ -1,4 +1,4 @@
 interface:
-  display_name: "Address GitLab Discussions"
+  display_name: "GitLab Discussions · IHO.SU"
   short_description: "Implement unresolved GitLab MR feedback"
   default_prompt: "Use $glab-address-discussions to fetch and implement every unresolved discussion from a specific GitLab merge request."

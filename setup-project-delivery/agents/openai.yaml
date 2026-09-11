@@ -1,5 +1,5 @@
 interface:
-  display_name: "Set Up Project Delivery"
+  display_name: "Setup Project Delivery · IHO.SU"
   short_description: "Docker setup, optional PyPI and server deployment"
   default_prompt: "Use $setup-project-delivery to set up Docker for this project and help me select optional PyPI publishing and automatic server deployment."
 policy:

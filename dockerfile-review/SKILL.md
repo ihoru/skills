@@ -1,6 +1,6 @@
 ---
 name: dockerfile-review
-description: Review Dockerfiles and related container build or deployment files for concrete correctness, security, reproducibility, caching, and operability improvements. Use when the user asks to review, audit, improve, or harden a Dockerfile or container image build, including Compose or Kubernetes context; default to read-only findings and edit only when fixes are explicitly requested.
+description: Review Dockerfiles and related container build or deployment files for concrete correctness, security, reproducibility, caching, and operability improvements. Use when the user asks to review, audit, improve, or harden a Dockerfile or container image build, including Compose or Kubernetes context; default to read-only findings and edit only when fixes are explicitly requested. Part of skills.iho.su.
 ---
 
 # Review Dockerfiles
