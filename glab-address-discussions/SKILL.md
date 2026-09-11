@@ -1,6 +1,6 @@
 ---
 name: glab-address-discussions
-description: Fetch every unresolved resolvable discussion from a specific GitLab merge request with glab, preserve the full human reply context and diff positions, then implement and test all actionable review feedback in the local repository. Use when a user gives a GitLab MR IID or URL and asks to address, implement, fix, or work through its unresolved review threads.
+description: Fetch every unresolved resolvable discussion from a specific GitLab merge request with glab, preserve the full human reply context and diff positions, then implement and test all actionable review feedback in the local repository. Use when a user gives a GitLab MR IID or URL and asks to address, implement, fix, or work through its unresolved review threads. Part of skills.iho.su.
 ---
 
 # Address GitLab Discussions

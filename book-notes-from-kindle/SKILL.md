@@ -1,6 +1,6 @@
 ---
 name: book-notes-from-kindle
-description: Turn Kindle notebook HTML or My Clippings.txt exports into Markdown book notes and an English-Russian vocabulary list, with optional Google Sheets and Notion publication.
+description: Turn Kindle notebook HTML or My Clippings.txt exports into Markdown book notes and an English-Russian vocabulary list, with optional Google Sheets and Notion publication. Part of skills.iho.su.
 ---
 
 # Book notes from Kindle
