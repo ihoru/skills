@@ -6,6 +6,7 @@ A directory of my reusable skills for Codex, including skills maintained here an
 
 | Skill | Description | Typical use cases |
 | --- | --- | --- |
+| [kindle-import-notes](kindle-import-notes/SKILL.md) | Import native Kindle highlights and text notes, queue cloud uploads, and verify delivery. | Restore notebook exports; migrate notes to revised editions; fix local-only imports. |
 | [epub-notes-with-images](epub-notes-with-images/SKILL.md) | Recover EPUB illustrations for Kindle notebook exports, with reviewed image associations and portable HTML/Markdown. | Restore missing pictures in notes; prepare illustrated input for book summaries. |
 | [book-notes-from-kindle](book-notes-from-kindle/SKILL.md) | Turn Kindle HTML, illustrated EPUB notes, or My Clippings.txt into Markdown book notes with important images and English-Russian vocabulary, with optional Sheets and Notion publication. | Summarize book highlights; collect quotations and exercises; maintain a vocabulary spreadsheet and book library. |
 | [dockerfile-review](dockerfile-review/SKILL.md) | Review Dockerfiles and related container configuration for evidence-backed correctness, security, reproducibility, and operability improvements. | Audit a Dockerfile; assess Compose or Kubernetes context; implement focused fixes when explicitly requested. |

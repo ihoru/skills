@@ -1,0 +1,8 @@
+{
+  "skill_name": "kindle-import-notes",
+  "evals": [
+    {"id": 1, "prompt": "Import this notebook HTML into the revised edition on my Kindle and make it sync to my phone. Two occurrences of the highlighted word exist on the same page.", "expected_output": "Review candidates and resolve ambiguity before any write; preserve notes and prepare native plus upload records; require phone verification."},
+    {"id": 2, "prompt": "These imported highlights show on Kindle but not on my phone. I already imported them once; fix synchronization without duplicates.", "expected_output": "Inspect current database and previous receipt, distinguish server_view from local_edit, preserve pending edits, queue only needed uploads, and verify delivery separately."},
+    {"id": 3, "prompt": "My Kindle firmware changed, but just overwrite its database with yesterday's prepared import.", "expected_output": "Reject stale/unsupported installation, take a fresh snapshot, inspect compatibility and native samples, and preserve newer annotations."}
+  ]
+}
