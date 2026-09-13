@@ -1,4 +1,5 @@
 """Small synthetic fixtures: no private excerpts or account configuration."""
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -11,6 +12,15 @@ class ParseTests(unittest.TestCase):
             path = Path(directory) / ('export' + suffix)
             path.write_text(text, encoding='utf-8-sig')
             return extract(path, book)
+
+    def test_invalid_manifest_collections_are_schema_errors(self):
+        record = {'book': 'Example', 'kind': 'highlight', 'text': 'A note'}
+        cases = [[], {'schema': 'epub-notes/v1', 'records': [dict(record, images=None)]},
+                 {'schema': 'epub-notes/v1', 'records': [record], 'warnings': None},
+                 {'schema': 'epub-notes/v1', 'records': [record], 'warnings': [{}]}]
+        for data in cases:
+            with self.subTest(data=data), self.assertRaises(ValueError):
+                self.run_source('<script id="epub-notes-manifest" type="application/json">' + json.dumps(data) + '</script>', '.html')
 
     def test_html_bookmarks_notes_entities_and_duplicates(self):
         result = self.run_source('''<div class="bookTitle">A Book</div>

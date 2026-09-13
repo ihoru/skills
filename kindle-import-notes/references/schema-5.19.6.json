@@ -1,0 +1,61 @@
+{
+  "key_value_storage": [
+    "key",
+    "value"
+  ],
+  "migration_states": [
+    "migration_state",
+    "retry_count"
+  ],
+  "book_state": [
+    "book_id",
+    "state"
+  ],
+  "legacy_delta_sync_tokens": [
+    "book_id",
+    "sync_token"
+  ],
+  "delta_sync_tokens": [
+    "book_id",
+    "sync_token"
+  ],
+  "local_edit": [
+    "annotation_id",
+    "action",
+    "dataset",
+    "dataset_id",
+    "serialized_payload",
+    "dirty_flag",
+    "created_time",
+    "modified_time",
+    "retry_count",
+    "expiration_timestamp",
+    "sync_behavior"
+  ],
+  "nonsyncable_annotations": [
+    "annotation_id",
+    "book_id",
+    "dataset",
+    "start_position",
+    "end_position",
+    "created_time",
+    "modified_time",
+    "serialized_payload"
+  ],
+  "staging_server_view": [
+    "dataset",
+    "dataset_id",
+    "annotation_id",
+    "serialized_payload",
+    "created_time",
+    "modified_time"
+  ],
+  "server_view": [
+    "dataset",
+    "dataset_id",
+    "annotation_id",
+    "serialized_payload",
+    "created_time",
+    "modified_time"
+  ]
+}

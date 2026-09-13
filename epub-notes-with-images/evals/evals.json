@@ -1,0 +1,23 @@
+{
+  "skill_name": "epub-notes-with-images",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Use this EPUB and Kindle notebook HTML to restore pictures, preserving every note. A highlight includes a figure caption.",
+      "expected_output": "Standalone illustrated HTML, unchanged records, correct caption-associated image, parser roundtrip retains provenance.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Add images to these notes; the highlighted phrase occurs in two chapters.",
+      "expected_output": "Ambiguity is surfaced for review; no silently guessed image. Explicit selection is supported.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Summarize this enriched notes HTML with the diagrams that matter most.",
+      "expected_output": "book-notes-from-kindle extracts embedded assets, visually selects explanatory images, preserves captions and portable Markdown links.",
+      "files": []
+    }
+  ]
+}

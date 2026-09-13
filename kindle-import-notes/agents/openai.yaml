@@ -1,0 +1,4 @@
+interface:
+  display_name: "Kindle Import Notes · IHO.SU"
+  short_description: "Restore native Kindle notes and queue cloud synchronization"
+  default_prompt: "Use $kindle-import-notes to import my notes file into the matching Kindle book and verify cloud synchronization."
