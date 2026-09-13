@@ -39,3 +39,7 @@ This profile was verified on one device: 44 imported highlights appeared locally
 Reject unresolved matches, conflicting IDs, malformed positions, unsupported firmware/schema, active SQLite journal files, changed source DB/KFX, or failed readback. Keep candidate creation offline. Save all backups and receipts outside the repository with restricted directory permissions. The table comparison proves preservation of existing rows, not device or cloud acceptance.
 
 A prior receipt is local evidence of an installation, not evidence of server acceptance. Queue disappearance can also mean rejection or loss. Verification requires phone-visible records, an export comparison, or explicit user confirmation; retain that distinction in the final response.
+
+## Mapping and conflict checks
+
+Mappings carry a fingerprint of their complete source snapshot. Preparation and installation verify that fingerprint, book membership, KFX path membership, and KFX content hash; remap older artifacts without a fingerprint. Unicode matching normalizes complete contiguous text runs using compatibility decomposition and case folding, retains combining marks and source-position provenance, and refuses to cross any missing text position (including an image). A desired span crossing an image must be split into separately reviewed highlights. Existing short and long positions must both match; changed or absent long anchors are conflicts requiring explicit investigation, not automatic reuse.

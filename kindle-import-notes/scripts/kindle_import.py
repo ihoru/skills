@@ -92,7 +92,41 @@ def inspect(args):
 
 
 def normalize(text):
-    return ''.join(c.lower() for c in unicodedata.normalize('NFKC', text) if c.isalnum())
+    return ''.join(c for c in unicodedata.normalize('NFKD', text).casefold()
+                   if c.isalnum() or unicodedata.combining(c))
+
+
+def normalized_run(text, positions):
+    """Normalize a complete run, retaining provenance through decomposition/reordering."""
+    units, combining = [], []
+    def flush():
+        units.extend(sorted(combining, key=lambda x: unicodedata.combining(x[0])))
+        combining.clear()
+    for char, pid in zip(text, positions):
+        for decomposed in unicodedata.normalize('NFKD', char):
+            if unicodedata.combining(decomposed):
+                combining.append((decomposed, pid))
+            else:
+                flush()
+                units.append((decomposed, pid))
+    flush()
+    filtered = [(folded, pid) for char, pid in units for folded in char.casefold()
+                if folded.isalnum() or unicodedata.combining(folded)]
+    normalized = normalize(text)
+    require(normalized == ''.join(ch for ch, _ in filtered), 'Unicode provenance mismatch')
+    return normalized, [pid for _, pid in filtered]
+
+
+def snapshot_fingerprint(snapshot):
+    return hashlib.sha256(json.dumps(snapshot, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+
+
+def validate_mapping_snapshot(mapping, snapshot):
+    require(mapping.get('snapshot_fingerprint') == snapshot_fingerprint(snapshot),
+            'Mapping belongs to a different snapshot; remap against the selected snapshot')
+    require(mapping['book_id'] in snapshot['books'], 'Mapping book is not listed by snapshot')
+    require(mapping['kfx_path'] in snapshot['kfx_files'], 'Mapping KFX is not listed by snapshot')
+    require(digest(mapping['kfx_path']) == mapping['kfx_sha256'], 'Mapping KFX changed; remap')
 
 
 def position(pid, eid, offset):
@@ -107,9 +141,21 @@ def map_records(records, chunks, choices=None):
             pid = chunk['pid'] + i
             require(pid not in chars, 'Overlapping KFX text positions')
             chars[pid] = (char, chunk['eid'], chunk['eid_offset'] + i)
-            n = normalize(char)
-            hay.extend(n)
-            refs.extend([pid] * len(n))
+    run = []
+    def flush_run():
+        if run:
+            normalized, provenance = normalized_run(''.join(chars[p][0] for p in run), run)
+            hay.append(normalized)
+            refs.extend(provenance)
+            # An unsearchable delimiter prevents matches across images or missing PIDs.
+            hay.append('\x00')
+            refs.append(None)
+            run.clear()
+    for pid in sorted(chars):
+        if run and pid != run[-1] + 1:
+            flush_run()
+        run.append(pid)
+    flush_run()
     hay = ''.join(hay)
     result, resolved = [], {}
     require(len({str(r['id']) for r in records}) == len(records), 'Duplicate input record IDs')
@@ -133,7 +179,7 @@ def map_records(records, chunks, choices=None):
         else:
             needle = normalize(anchor)
             found = [m.start() for m in re.finditer('(?=' + re.escape(needle) + ')', hay)]
-            spans = [(refs[m], refs[m + len(needle) - 1]) for m in found]
+            spans = [(min(refs[m:m+len(needle)]), max(refs[m:m+len(needle)])) for m in found]
             item['candidates'] = [{'start': a, 'end': z, 'context': ''.join(chars.get(i, (' ',))[0]
                                    for i in range(max(0, a - 100), z + 101))} for a, z in spans]
             pick = choice.get('candidate')
@@ -150,7 +196,8 @@ def map_records(records, chunks, choices=None):
                     a -= len(leading)
                 if trailing and ''.join(chars.get(i, ('',))[0] for i in range(z+1, z+1+len(trailing))) == trailing:
                     z += len(trailing)
-                extracted = ''.join(chars.get(i, (' ',))[0] for i in range(a, z+1))
+                require(all(i in chars for i in range(a, z+1)), 'Discontinuous KFX positions')
+                extracted = ''.join(chars[i][0] for i in range(a, z+1))
                 require(normalize(extracted) == needle, 'Non-contiguous or reordered matching span; review manually')
                 def at(p):
                     return position(p, chars[p][1], chars[p][2])
@@ -195,7 +242,8 @@ def mapping(args):
     chunks = [vars(x) for x in book.collect_content_position_info()]
     records = load_notes(args.notes, args.parser)
     mapped = map_records(records, chunks, read(args.choices) if args.choices else None)
-    write(out / 'mapping.json', {'book_id': args.book_id, 'kfx_sha256': hashlib.sha256(data).hexdigest(),
+    write(out / 'mapping.json', {'snapshot_fingerprint': snapshot_fingerprint(snapshot),
+                               'book_id': args.book_id, 'kfx_sha256': hashlib.sha256(data).hexdigest(),
                                'kfx_path': str(kfx), 'records': mapped})
     write(out / 'chunks.json', chunks)
     print('Mapped:', sum(r['status'] == 'mapped' for r in mapped), 'of', len(mapped), '; review mapping.json')
@@ -209,7 +257,8 @@ def semantic(payload):
         # A synced note may contain an extra JSON escaping layer.
         meta = json.loads(meta.replace('\\"', '"'))
     return (payload['type'], payload['book_data'], payload['start_position']['shortPosition'],
-            payload['end_position']['shortPosition'], meta.get('note_text') if isinstance(meta, dict) else None)
+            payload['end_position']['shortPosition'],
+            payload['start_position'].get('longPosition', ''), payload['end_position'].get('longPosition', ''), meta.get('note_text') if isinstance(meta, dict) else None)
 
 
 def prepare_database(source, target, mapping_data, firmware, previous=None):
@@ -290,9 +339,10 @@ def prepare(args):
     require(digest(snapdir / 'backup.sqlite') == snap['backup_sha256'], 'Backup hash mismatch')
     out = output_dir(args.output)
     data = read(args.mapping)
+    validate_mapping_snapshot(data, snap)
     previous = read(args.previous_receipt) if args.previous_receipt else None
     report = prepare_database(snapdir/'backup.sqlite', out/'prepared.sqlite', data, snap['firmware'], previous)
-    report.update(snapshot=snap, kfx_path=data['kfx_path'], kfx_sha256=data['kfx_sha256'],
+    report.update(snapshot=snap, snapshot_fingerprint=data['snapshot_fingerprint'], kfx_path=data['kfx_path'], kfx_sha256=data['kfx_sha256'],
                   prepared_sha256=digest(out/'prepared.sqlite'))
     write(out/'report.json', report)
     print('Prepared:', report['added'], 'native records;', report['queued'], 'uploads. Review', out/'report.json')
@@ -300,6 +350,7 @@ def prepare(args):
 
 def install_files(report, candidate, transfer):
     snapshot = report['snapshot']
+    validate_mapping_snapshot(report, snapshot)
     path = Path(snapshot['database'])
     check_quiescent(path)
     require(digest(path) == snapshot['backup_sha256'], 'Device changed since backup; inspect and prepare afresh')

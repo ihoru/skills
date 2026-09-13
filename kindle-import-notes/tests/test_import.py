@@ -54,6 +54,25 @@ class MappingTests(unittest.TestCase):
         out=k.map_records([{'id':1,'kind':'highlight','text':'“Hello world.”'}],chunks)[0]
         self.assertEqual(out['matched_text'],'“Hello world.”')
 
+    def test_canonical_unicode_runs(self):
+        for text, query in [('cafe\u0301', 'café'), ('café', 'cafe\u0301'),
+                            ('a\u0315\u0300', 'à\u0315'), ('Straße', 'STRASSE')]:
+            chunks=[{'pid':i,'eid':i+1,'eid_offset':0,'text':ch} for i,ch in enumerate(text)]
+            result=k.map_records([{'id':1,'kind':'highlight','text':query}],chunks)[0]
+            self.assertEqual(result['status'],'mapped')
+            self.assertEqual(result['start_position']['shortPosition'],0)
+            self.assertEqual(result['end_position']['shortPosition'],len(text)-1)
+
+    def test_gap_cannot_be_selected(self):
+        for second in (4,1000):
+            chunks=[{'pid':0,'eid':1,'eid_offset':0,'text':'foo'},
+                    {'pid':second,'eid':2,'eid_offset':0,'text':'bar'}]
+            r=[{'id':1,'kind':'highlight','text':'foo bar'}]
+            result=k.map_records(r,chunks)[0]
+            self.assertEqual(result['status'],'unresolved')
+            self.assertEqual(result['candidates'],[])
+            with self.assertRaises(ValueError):k.map_records(r,chunks,{'1':{'candidate':1}})
+
 
 class DatabaseTests(unittest.TestCase):
     def setUp(self):
@@ -104,8 +123,10 @@ class DatabaseTests(unittest.TestCase):
         candidate,_=self.prep(); storage=self.root/'storage';(storage/'system').mkdir(parents=True)
         (storage/'system/version.txt').write_text('Kindle 5.19.6')
         book=self.root/'book.kfx';book.write_bytes(b'synthetic')
-        report={'snapshot':{'database':str(self.src),'backup_sha256':k.digest(self.src),'storage':str(storage),'firmware':'Kindle 5.19.6'},
+        report={'snapshot':{'database':str(self.src),'backup_sha256':k.digest(self.src),'storage':str(storage),'firmware':'Kindle 5.19.6','books':[BOOK],'kfx_files':[str(book)]},
                 'prepared_sha256':k.digest(candidate),'kfx_path':str(book),'kfx_sha256':k.digest(book)}
+        report['book_id']=BOOK
+        report['snapshot_fingerprint']=k.snapshot_fingerprint(report['snapshot'])
         with self.assertRaisesRegex(ValueError,'readback failed'):
             k.install_files(report,candidate,lambda s,d:None)
         self.src.write_bytes(b'changed')
@@ -126,6 +147,31 @@ class DatabaseTests(unittest.TestCase):
         result=json.loads(buf.getvalue())
         self.assertEqual(result['status'],'cloud_confirmation_required')
         self.assertFalse(result['cloud_verified'])
+
+    def test_changed_long_positions_conflict(self):
+        for table in ('server_view','local_edit'):
+            dest,_=self.prep(name=table+'.sqlite')
+            with sqlite3.connect(dest) as c:
+                if table=='local_edit':c.execute('delete from server_view')
+                payload=json.loads(c.execute('select serialized_payload from '+table+' where dataset=1').fetchone()[0])
+                payload['end_position']['longPosition']=k.position(15,99,7)['longPosition']
+                c.execute('update '+table+' set serialized_payload=? where dataset=1',(json.dumps(payload),))
+            with self.assertRaisesRegex(ValueError,'conflict'):
+                self.prep(dest,name=table+'-conflict.sqlite')
+
+    def test_mapping_bound_to_snapshot(self):
+        book=self.root/'book.kfx';book.write_bytes(b'edition one')
+        snap={'books':[BOOK],'kfx_files':[str(book)],'database':'device-one/database', 'backup_sha256':'example'}
+        mapping={'book_id':BOOK,'kfx_path':str(book),'kfx_sha256':k.digest(book),
+                 'snapshot_fingerprint':k.snapshot_fingerprint(snap)}
+        k.validate_mapping_snapshot(mapping,snap)
+        with self.assertRaisesRegex(ValueError,'snapshot'):
+            k.validate_mapping_snapshot(mapping,dict(snap,database='device-two/database'))
+        with self.assertRaisesRegex(ValueError,'listed'):
+            k.validate_mapping_snapshot(dict(mapping,kfx_path='another.kfx'),snap)
+        book.write_bytes(b'edition two')
+        with self.assertRaisesRegex(ValueError,'changed'):
+            k.validate_mapping_snapshot(mapping,snap)
 
     def test_active_journal_blocks(self):
         Path(str(self.src)+'-wal').write_bytes(b'')
