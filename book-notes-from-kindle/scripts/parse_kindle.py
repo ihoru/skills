@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Extract Kindle notebook HTML or English My Clippings.txt without rewriting text."""
 import argparse
+import base64
+import hashlib
 import json
 import re
 from html.parser import HTMLParser
@@ -50,7 +52,73 @@ def metadata(heading):
     return result
 
 
+class IllustratedManifestParser(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.active = False
+        self.parts = []
+        self.found = False
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        if tag == 'script' and attrs.get('id') == 'epub-notes-manifest':
+            if self.found:
+                raise ValueError('Multiple illustrated notes manifests.')
+            self.found = self.active = True
+
+    def handle_data(self, text):
+        if self.active:
+            self.parts.append(text)
+
+    def handle_endtag(self, tag):
+        if tag == 'script':
+            self.active = False
+
+
+def illustrated_manifest(text):
+    parser = IllustratedManifestParser()
+    parser.feed(text)
+    if not parser.found:
+        return None
+    data = json.loads(''.join(parser.parts))
+    if data.get('schema') != 'epub-notes/v1' or not isinstance(data.get('records'), list):
+        raise ValueError('Unsupported illustrated notes manifest.')
+    for r in data['records']:
+        if not isinstance(r, dict) or not all(isinstance(r.get(k), str) for k in ('book', 'kind', 'text')):
+            raise ValueError('Invalid illustrated note record.')
+        for image in r.get('images', []):
+            if not isinstance(image, dict) or not isinstance(image.get('src'), str):
+                raise ValueError('Invalid illustrated note image.')
+    return data
+
+
+def materialize_images(result, output):
+    assets = output.parent / (output.stem + '-assets')
+    planned = {}
+    for record in result['records']:
+        for image in record.get('images', []):
+            match = re.fullmatch(r'data:image/(jpeg|png|gif|webp);base64,([A-Za-z0-9+/=\s]+)', image['src'])
+            if not match:
+                raise ValueError('Expected an embedded raster image; external images require manual review.')
+            content = base64.b64decode(match[2], validate=True)
+            if len(content) > 20_000_000:
+                raise ValueError('Oversized embedded image.')
+            ext = {'jpeg': 'jpg'}.get(match[1], match[1])
+            path = assets / (hashlib.sha256(content).hexdigest()[:16] + '.' + ext)
+            planned[path] = content
+            image['src'] = str(path.resolve())
+    if planned and assets.exists():
+        raise ValueError('Image output directory already exists; choose a new output path.')
+    if planned:
+        assets.mkdir(parents=True)
+        for path, content in planned.items():
+            path.write_bytes(content)
+
+
 def parse_html(text):
+    enriched = illustrated_manifest(text)
+    if enriched is not None:
+        return enriched['records'], list(enriched.get('warnings', []))
     parser = NotebookParser()
     parser.feed(text)
     book = author = section = ''
@@ -123,7 +191,7 @@ def extract(path, book=None):
             candidates.append({'record_id': index, 'original': record['text']})
         previous = record
     return {'source': str(Path(path).resolve()), 'book': records[0]['book'],
-            'records': records, 'vocabulary_candidates': candidates, 'warnings': warnings}
+            'records': records, 'vocabulary_candidates': candidates, 'warnings': list(dict.fromkeys(warnings))}
 
 
 def main():
@@ -138,6 +206,7 @@ def main():
         parser.error('Output already exists; choose a new output path.')
     try:
         result = extract(args.input, args.book)
+        materialize_images(result, args.output)
     except (ValueError, OSError) as error:
         parser.error(str(error))
     args.output.parent.mkdir(parents=True, exist_ok=True)

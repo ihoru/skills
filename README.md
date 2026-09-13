@@ -6,7 +6,8 @@ A directory of my reusable skills for Codex, including skills maintained here an
 
 | Skill | Description | Typical use cases |
 | --- | --- | --- |
-| [book-notes-from-kindle](book-notes-from-kindle/SKILL.md) | Turn Kindle HTML or My Clippings.txt into Markdown book notes and English-Russian vocabulary, with optional Sheets and Notion publication. | Summarize book highlights; collect quotations and exercises; maintain a vocabulary spreadsheet and book library. |
+| [epub-notes-with-images](epub-notes-with-images/SKILL.md) | Recover EPUB illustrations for Kindle notebook exports, with reviewed image associations and portable HTML/Markdown. | Restore missing pictures in notes; prepare illustrated input for book summaries. |
+| [book-notes-from-kindle](book-notes-from-kindle/SKILL.md) | Turn Kindle HTML, illustrated EPUB notes, or My Clippings.txt into Markdown book notes with important images and English-Russian vocabulary, with optional Sheets and Notion publication. | Summarize book highlights; collect quotations and exercises; maintain a vocabulary spreadsheet and book library. |
 | [dockerfile-review](dockerfile-review/SKILL.md) | Review Dockerfiles and related container configuration for evidence-backed correctness, security, reproducibility, and operability improvements. | Audit a Dockerfile; assess Compose or Kubernetes context; implement focused fixes when explicitly requested. |
 | [glab-address-discussions](glab-address-discussions/SKILL.md) | Fetch unresolved GitLab merge-request discussions, implement actionable feedback, and validate changes. | Address reviewer feedback; track unresolved comments through implementation. |
 | [setup-project-delivery](setup-project-delivery/SKILL.md) | Configure Docker or Compose, optional PyPI publishing, and optional GitHub Actions deployment to a server. | Containerize an application; publish a Python package; deploy automatically after successful `main` checks. |
