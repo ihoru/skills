@@ -2,6 +2,7 @@ import importlib.util
 import json
 import tempfile
 import unittest
+from unittest.mock import patch
 import zipfile
 from pathlib import Path
 
@@ -46,5 +47,59 @@ class EnrichmentTests(unittest.TestCase):
     def test_external_and_escape_resources_rejected(self):
         for href in ('https://example.com/image.png','../../../secret.png'):
             with self.assertRaises(ValueError):m.member('OPS/c.xhtml',href)
+
+    def test_manual_rejection_is_preserved(self):
+        self.fixture(self.figure(),CAP)
+        choices=self.root/'choices.json';choices.write_text('{"1": []}')
+        result=m.enrich(self.epub,self.notes,self.root/'out',choices)
+        self.assertEqual(result['records'][0]['image_review'],'manually-rejected')
+        review=json.loads((self.root/'out/review.json').read_text())
+        self.assertEqual(review['records'][0]['status'],'manually-rejected')
+
+    def test_word_boundaries_prevent_false_match(self):
+        self.fixture('<p>nowhere</p>'+self.figure()+'<p>after</p>','now here '+CAP+' after')
+        result=m.enrich(self.epub,self.notes,self.root/'out')
+        self.assertNotIn('epub_match',result['records'][0])
+        self.assertEqual(result['records'][0]['images'],[])
+
+    def test_inline_markup_preserves_words(self):
+        self.fixture('<p>some<b>where</b> now</p>'+self.figure(),'somewhere now '+CAP)
+        result=m.enrich(self.epub,self.notes,self.root/'out')
+        self.assertEqual(len(result['records'][0]['images']),1)
+
+    def test_caption_occurrence_scoped_to_match(self):
+        self.fixture('<p>Unique lead.</p>'+self.figure()+'<p>End.</p><p>Distant context.</p>'+self.figure(),'Unique lead. '+CAP)
+        result=m.enrich(self.epub,self.notes,self.root/'out')
+        self.assertEqual([i['id'] for i in result['records'][0]['images']],['image-1'])
+
+    def test_markdown_source_is_literal(self):
+        self.fixture('<p>Example</p>','---')
+        result=m.enrich(self.epub,self.notes,self.root/'out')
+        self.assertEqual(result['records'][0]['text'],'---')
+        self.assertIn('&#45;&#45;&#45;', (self.root/'out/notes.md').read_text())
+        self.assertEqual(m.markdown_text('<b>*x*</b>'),'&#60;b&#62;&#42;x&#42;&#60;&#47;b&#62;')
+
+    def test_oversized_xml_checked_before_open(self):
+        self.fixture(self.figure(),CAP)
+        with patch.object(m,'MAX_MEMBER_BYTES',10), patch.object(zipfile.ZipFile,'open',side_effect=AssertionError('decompressed')):
+            with self.assertRaisesRegex(ValueError,'Oversized'):m.read_epub(self.epub)
+
+    def test_total_budget_checked_before_open(self):
+        self.fixture(self.figure(),CAP)
+        with patch.object(m,'MAX_ARCHIVE_BYTES',10), patch.object(zipfile.ZipFile,'open',side_effect=AssertionError('decompressed')):
+            with self.assertRaisesRegex(ValueError,'cumulative'):m.read_epub(self.epub)
+
+    def test_oversized_image_is_not_opened(self):
+        self.fixture(self.figure(),CAP)
+        with zipfile.ZipFile(self.epub,'a') as z:z.writestr('OPS/large.png',b'x'*2000)
+        # Point at the large image without changing normal XML members.
+        with zipfile.ZipFile(self.epub,'a') as z:z.writestr('OPS/c.xhtml','<html><body><img src="large.png"/></body></html>')
+        original=zipfile.ZipFile.open
+        def guarded(archive,name,*a,**kw):
+            self.assertNotEqual(getattr(name,'filename',name),'OPS/large.png')
+            return original(archive,name,*a,**kw)
+        with patch.object(m,'MAX_MEMBER_BYTES',1000),patch.object(zipfile.ZipFile,'open',guarded):
+            _,_,images,warnings=m.read_epub(self.epub)
+        self.assertEqual(images,[]);self.assertTrue(any('Oversized' in w for w in warnings))
 
 if __name__=='__main__':unittest.main()

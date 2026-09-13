@@ -81,11 +81,17 @@ def illustrated_manifest(text):
     if not parser.found:
         return None
     data = json.loads(''.join(parser.parts))
+    if not isinstance(data, dict):
+        raise ValueError('Invalid illustrated notes manifest.')
     if data.get('schema') != 'epub-notes/v1' or not isinstance(data.get('records'), list):
         raise ValueError('Unsupported illustrated notes manifest.')
+    if not isinstance(data.get('warnings', []), list) or any(not isinstance(w, str) for w in data.get('warnings', [])):
+        raise ValueError('Invalid illustrated notes warnings.')
     for r in data['records']:
         if not isinstance(r, dict) or not all(isinstance(r.get(k), str) for k in ('book', 'kind', 'text')):
             raise ValueError('Invalid illustrated note record.')
+        if not isinstance(r.get('images', []), list):
+            raise ValueError('Invalid illustrated note images.')
         for image in r.get('images', []):
             if not isinstance(image, dict) or not isinstance(image.get('src'), str):
                 raise ValueError('Invalid illustrated note image.')

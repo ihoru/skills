@@ -22,6 +22,8 @@ Create a portable illustrated notes export from a book's EPUB and Kindle noteboo
 4. Verify that every supplied record survives with its original wording and metadata. Compare note and highlight counts to the parsed source. Distinguish automatic associations, reviewed selections, unmatched records, and unresolved candidates in the completion status.
 5. Open the final HTML and check that images render beside the relevant highlight or note, captions and labels are readable, and a narrow viewport preserves layout. Inspect each selected image, including small labels and orientation. Re-run the sibling Kindle parser against the final HTML and confirm that records and image provenance survive extraction.
 
+The helper limits each decompressed EPUB member to 20 MB and total declared archive/read volume to 200 MB. Oversized XML fails before decompression; unsupported or oversized images are reported for manual review. Matching retains word boundaries and scopes caption associations to their source occurrence. Explicit selection-file rejections remain marked `manually-rejected` in the manifest and review report.
+
 ## Output contract
 
 - `notes.html` is the standalone deliverable with embedded raster images. It includes an `application/json` script with ID `epub-notes-manifest` and schema `epub-notes/v1`, holding records and image provenance for downstream processing.

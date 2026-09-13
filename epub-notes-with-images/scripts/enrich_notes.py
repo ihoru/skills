@@ -15,8 +15,17 @@ from urllib.parse import unquote, urlsplit
 from xml.etree import ElementTree as ET
 
 
+MAX_MEMBER_BYTES = 20_000_000
+MAX_ARCHIVE_BYTES = 200_000_000
+
+
 def normalize(text):
-    return ''.join(c.lower() for c in unicodedata.normalize('NFKC', text) if c.isalnum())
+    return ' '.join(''.join(c.lower() if c.isalnum() else ' ' for c in unicodedata.normalize('NFKC', text)).split())
+
+
+def markdown_text(text):
+    # Character references preserve source punctuation without interpreting Markdown/HTML.
+    return ''.join(c if c.isalnum() or c in ' \n' else f'&#{ord(c)};' for c in text).replace('\n', '<br>\n')
 
 
 def member(base, href):
@@ -36,8 +45,25 @@ def tag(element):
 def read_epub(path):
     docs, images, warnings = [], [], []
     with zipfile.ZipFile(path) as archive:
+        infos = archive.infolist()
+        if sum(info.file_size for info in infos) > MAX_ARCHIVE_BYTES:
+            raise ValueError('EPUB exceeds cumulative decompressed-size budget.')
+        total_read = 0
+        def read(name):
+            nonlocal total_read
+            info = archive.getinfo(name)
+            if info.file_size > MAX_MEMBER_BYTES:
+                raise ValueError('Oversized EPUB member: ' + name)
+            if total_read + info.file_size > MAX_ARCHIVE_BYTES:
+                raise ValueError('EPUB exceeds cumulative read budget.')
+            with archive.open(info) as stream:
+                data = stream.read(MAX_MEMBER_BYTES + 1)
+            if len(data) > MAX_MEMBER_BYTES:
+                raise ValueError('Oversized EPUB member: ' + name)
+            total_read += len(data)
+            return data
         def xml(name):
-            data = archive.read(name)
+            data = read(name)
             if len(data) > 20_000_000 or b'<!ENTITY' in data.upper():
                 raise ValueError('Oversized or entity-containing EPUB XML: ' + name)
             return ET.fromstring(data)
@@ -53,12 +79,19 @@ def read_epub(path):
             name = member(opf, resource['href']); root = xml(name)
             body = next((e for e in root.iter() if tag(e) == 'body'), root)
             offsets, text = {}, []
+            blocks = {'p', 'div', 'figure', 'figcaption', 'li', 'br', 'h1', 'h2', 'h3', 'h4', 'td', 'tr'}
+            def append(value):
+                for ch in unicodedata.normalize('NFKC', value):
+                    if ch.isalnum(): text.extend(ch.lower())
+                    elif text and text[-1] != ' ': text.append(' ')
             def walk(e):
+                if tag(e) in blocks: append(' ')
                 start = len(text)
-                text.extend(normalize(e.text or ''))
+                append(e.text or '')
                 for child in e:
-                    walk(child); text.extend(normalize(child.tail or ''))
+                    walk(child); append(child.tail or '')
                 offsets[id(e)] = (start, len(text))
+                if tag(e) in blocks: append(' ')
             walk(body); hay = ''.join(text)
             parents = {id(c): p for p in body.iter() for c in p}
             doc = {'href': name, 'text': hay, 'images': []}
@@ -68,21 +101,28 @@ def read_epub(path):
                 src = e.get('src') or e.get('{http://www.w3.org/1999/xlink}href') or e.get('href')
                 if not src: continue
                 image_id = 'image-' + str(len(images) + 1)
-                caption = ''; ancestor = parents.get(id(e))
+                caption = ''; caption_ranges = []; ancestor = parents.get(id(e))
                 while ancestor is not None:
                     if tag(ancestor) == 'figure':
-                        caption = ' '.join(''.join(c.itertext()).strip() for c in ancestor.iter() if tag(c) == 'figcaption')
+                        captions = [c for c in ancestor.iter() if tag(c) == 'figcaption']
+                        caption = ' '.join(''.join(c.itertext()).strip() for c in captions)
+                        caption_ranges = []
+                        for c in captions:
+                            a, b = offsets[id(c)]
+                            while a < b and hay[a] == ' ': a += 1
+                            while b > a and hay[b-1] == ' ': b -= 1
+                            caption_ranges.append((a, b))
                         break
                     ancestor = parents.get(id(ancestor))
                 try:
-                    image_path = member(name, src); data = archive.read(image_path)
+                    image_path = member(name, src); data = read(image_path)
                     ext = Path(image_path).suffix.lower()
                     mime = {'.jpg':'image/jpeg','.jpeg':'image/jpeg','.png':'image/png','.gif':'image/gif','.webp':'image/webp'}.get(ext)
                     if not mime or len(data) > 20_000_000:
                         raise ValueError('Unsupported or oversized image; render/review manually')
                 except (ValueError, KeyError) as err:
                     warnings.append(f'{name}: {src}: {err}'); continue
-                record = {'id':image_id,'epub_href':name,'epub_image':image_path,'caption':caption,'alt':e.get('alt',''), 'offset':offsets[id(e)][0], 'src':'data:'+mime+';base64,'+base64.b64encode(data).decode(), 'asset_name':hashlib.sha256(data).hexdigest()[:16]+ext}
+                record = {'id':image_id,'epub_href':name,'epub_image':image_path,'caption':caption,'caption_ranges':caption_ranges,'alt':e.get('alt',''), 'offset':offsets[id(e)][0], 'src':'data:'+mime+';base64,'+base64.b64encode(data).decode(), 'asset_name':hashlib.sha256(data).hexdigest()[:16]+ext}
                 images.append(record); doc['images'].append(record)
             docs.append(doc)
     return title, docs, images, warnings
@@ -105,21 +145,23 @@ def enrich(epub, notebook, output, select=None):
         needle = normalize(record['text']); hits = []
         if record['kind'] == 'highlight' and needle:
             for doc in docs:
-                hits.extend((doc, m.start(), m.end()) for m in re.finditer(re.escape(needle), doc['text']))
+                hits.extend((doc, m.start(), m.end()) for m in re.finditer(r'(?<!\w)' + re.escape(needle) + r'(?!\w)', doc['text']))
         selected = []; candidates = []
         if len(hits) == 1:
             doc, start, end = hits[0]
             record['epub_match'] = {'href':doc['href'], 'normalized_start':start,'normalized_end':end}
             for im in doc['images']:
                 caption = normalize(im['caption'])
-                reason = 'caption-contained' if len(caption) >= 30 and caption in needle else ('inside-highlight-span' if start < im['offset'] < end else None)
+                reason = 'caption-contained' if len(caption) >= 30 and caption in needle and any(start <= a and b <= end for a, b in im['caption_ranges']) else ('inside-highlight-span' if start < im['offset'] < end else None)
                 if reason: selected.append(dict(im, association=reason))
                 elif abs(im['offset']-start) < 1500 or abs(im['offset']-end) < 1500:
                     candidates.append(im['id'])
         if str(record['id']) in choices:
             selected = [dict(by_id[i], association='manually-reviewed') for i in choices[str(record['id'])]]
+        manually_reviewed = str(record['id']) in choices
+        record['image_review'] = 'manually-selected' if manually_reviewed and selected else 'manually-rejected' if manually_reviewed else 'automatic'
         record['images'] = selected
-        review.append({'record_id':record['id'],'text':record['text'],'match_count':len(hits),'selected':[im['id'] for im in selected],'candidates':candidates,'status':'attached' if selected else 'review' if candidates or len(hits)!=1 else 'no-associated-image'})
+        review.append({'record_id':record['id'],'text':record['text'],'match_count':len(hits),'selected':[im['id'] for im in selected],'candidates':candidates,'status':record['image_review'] if manually_reviewed else 'attached' if selected else 'review' if candidates or len(hits)!=1 else 'no-associated-image'})
     unknown = set(choices)-{str(r['id']) for r in source['records']}
     if unknown: raise ValueError('Unknown selected record IDs: '+str(unknown))
     if output.exists(): raise ValueError('Output directory already exists; choose a new directory.')
@@ -132,12 +174,12 @@ def enrich(epub, notebook, output, select=None):
         (output/'assets'/im['asset_name']).write_bytes(base64.b64decode(im['src'].split(',',1)[1]))
     css='body{max-width:800px;margin:40px auto;padding:0 24px;font:18px/1.6 Georgia,serif}article{border-top:1px solid #ccc;padding:20px 0}img{max-width:100%;height:auto}figure{margin:20px 0}figcaption,small{color:#555}'
     parts=['<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Illustrated notes</title><style>'+css+'</style><body><h1>'+html.escape(source['book'])+'</h1><p>Images recovered from the supplied EPUB. This file includes only records present in the supplied notebook; it does not establish cloud completeness.</p>']
-    md=['# '+source['book'],'','Images recovered from the supplied EPUB; only supplied notebook records are included.','']
+    md=['# '+markdown_text(source['book']),'','Images recovered from the supplied EPUB; only supplied notebook records are included.','']
     for r in source['records']:
-        heading=r.get('heading',r['kind']);parts.append('<article><h2>'+html.escape(heading)+'</h2><p>'+html.escape(r['text']).replace('\n','<br>')+'</p>');md.extend(['## '+heading,'',r['text'],''])
+        heading=r.get('heading',r['kind']);parts.append('<article><h2>'+html.escape(heading)+'</h2><p>'+html.escape(r['text']).replace('\n','<br>')+'</p>');md.extend(['## '+markdown_text(heading),'',markdown_text(r['text']),''])
         for im in r['images']:
             parts.append('<figure><img src="'+im['src']+'" alt="'+html.escape(im['alt'],quote=True)+'"><figcaption>'+html.escape(im['caption'])+'</figcaption></figure>')
-            md.extend(['!['+im['alt'].replace(']','\\]')+'](assets/'+im['asset_name']+')','',im['caption'],''])
+            md.extend(['!['+markdown_text(im['alt'])+'](assets/'+im['asset_name']+')','',markdown_text(im['caption']),''])
         parts.append('</article>')
     manifest=json.dumps(source,ensure_ascii=False).replace('<','\\u003c')
     parts.append('<script type="application/json" id="epub-notes-manifest">'+manifest+'</script></body></html>')
