@@ -37,7 +37,7 @@ These identifiers document upstream declarations, rather than replacing their li
 
 ## Weekly review PR
 
-The workflow runs Mondays at 05:00 UTC (09:00 Asia/Tbilisi, currently UTC+4 with no daylight saving changes) and supports manual dispatch. GitHub schedules default to UTC and may run late; they run from the default branch, which is `master` in this repository. GitHub also supports explicit timezone schedules, but this workflow uses the approved UTC form. See [GitHub schedule documentation](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule).
+The workflow runs Mondays at 05:00 UTC (09:00 Asia/Tbilisi, currently UTC+4 with no daylight saving changes) and supports manual dispatch. GitHub schedules default to UTC and may run late; they run from the default branch, which is `main` in this repository. GitHub also supports explicit timezone schedules, but this workflow uses the approved UTC form. See [GitHub schedule documentation](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule).
 
 It opens or refreshes `automation/upstream-skills` with old/new commit links, upstream comparisons, full standalone diffs, validation results, and license-change results. Validation failures are reported in the run summary and commented on an existing review PR; they never replace snapshots. It neither merges PRs nor activates local skills. Review the source content, not just passing validation: the validator checks structure and provenance, not the correctness of upstream advice.
 
@@ -48,7 +48,7 @@ Repository setup prerequisite: in **Settings → Actions → General → Workflo
 Keep the active skills on a dedicated clean checkout so development branches and dirty files cannot change them. After the initial PR has merged, create this checkout once (the destination must not already exist):
 
 ```sh
-git clone --branch master --single-branch ssh://git@github.com/ihoru/skills.git /home/ihoru/projects/my/skills-installed
+git clone --branch main --single-branch ssh://git@github.com/ihoru/skills.git /home/ihoru/projects/my/skills-installed
 cd /home/ihoru/projects/my/skills-installed
 python3 -m venv .venv
 . .venv/bin/activate
@@ -66,7 +66,7 @@ For later merged updates, first ensure the installed checkout is clean:
 ```sh
 cd /home/ihoru/projects/my/skills-installed
 git status --short
-git pull --ff-only origin master
+git pull --ff-only origin main
 . .venv/bin/activate
 python -m pip install -r requirements-upstreams.txt
 python scripts/manage_upstreams.py install
