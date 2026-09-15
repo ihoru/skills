@@ -1,0 +1,6 @@
+interface:
+  display_name: "Set Up Git Fork · IHO.SU"
+  short_description: "Preview and confirm Git fork configuration"
+  default_prompt: "Use $setup-git-fork to configure this checkout for my fork, request its repository link if needed, and show the changes for confirmation."
+policy:
+  allow_implicit_invocation: true

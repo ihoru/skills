@@ -12,6 +12,7 @@ A directory of my reusable skills for Codex, including skills maintained here an
 | [dockerfile-review](dockerfile-review/SKILL.md) | Review Dockerfiles and related container configuration for evidence-backed correctness, security, reproducibility, and operability improvements. | Audit a Dockerfile; assess Compose or Kubernetes context; implement focused fixes when explicitly requested. |
 | [glab-address-discussions](glab-address-discussions/SKILL.md) | Fetch unresolved GitLab merge-request discussions, implement actionable feedback, and validate changes. | Address reviewer feedback; track unresolved comments through implementation. |
 | [setup-project-delivery](setup-project-delivery/SKILL.md) | Configure Docker or Compose, optional PyPI publishing, and optional GitHub Actions deployment to a server. | Containerize an application; publish a Python package; deploy automatically after successful `main` checks. |
+| [setup-git-fork](setup-git-fork/SKILL.md) | Configure a checkout to push to your fork, with a change preview and required confirmation. | Set the fork as `origin`; preserve the original as `upstream`; update branch tracking. |
 
 ## Skills packaged with tools
 
@@ -89,6 +90,10 @@ Use $setup-project-delivery to add Docker Compose and automatic deployment on ma
 ```
 
 `setup-project-delivery` is manually invoked; Codex will not select it automatically.
+
+```text
+Use $setup-git-fork to configure this checkout for my fork. Ask for the fork link, show what will change, and wait for my confirmation.
+```
 
 ```text
 Use $book-notes-from-kindle to turn this Kindle export into a Markdown file with vocabulary, theory, exercises, humor, books, and quotations. Publish the vocabulary to Book Vocabulary and the notes under Book Notes in Notion. Return links only.
