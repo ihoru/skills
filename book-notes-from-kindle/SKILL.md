@@ -65,6 +65,12 @@ After saving and inspecting the Markdown file, offer the remaining publication s
 
 Offer both destinations by default unless the user requested local-only output or already declined publication. If only one destination was requested, complete it and offer the other. When publication is already authorized in the conversation, proceed with that scope without asking again. A reply such as “yes”, “both”, or “proceed” to the combined offer authorizes both stated destinations.
 
+## Offer the remaining workflow
+
+After saving and inspecting the Markdown file, offer the remaining publication steps in one concise question: save the vocabulary to a book tab in `Book Vocabulary`, and save the full notes to `Book Notes` under `Personal Home` in Notion. These are proposed destinations until verified through the publication steps below. Include the Markdown link so the user can review the prepared content before choosing.
+
+Offer both destinations by default unless the user requested local-only output or already declined publication. If only one destination was requested, complete it and offer the other. When publication is already authorized in the conversation, proceed with that scope without asking again. A reply such as “yes”, “both”, or “proceed” to the combined offer authorizes both stated destinations.
+
 ## Publish when requested
 
 **Google Sheets:** Prefer the supplied or previously verified vocabulary spreadsheet. For this user's collection, look for `Book Vocabulary`; inspect matching metadata before selecting it. If the destination remains unknown, ask for a link once and offer a new spreadsheet. Use one tab per book, e.g. `Positivity`. Reuse an existing book tab and reconcile duplicates rather than creating another tab or workbook blindly. Preserve user-added entries and unrelated tabs.
