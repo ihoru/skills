@@ -106,7 +106,7 @@
       "id": "trailofbits",
       "repository": "https://github.com/trailofbits/skills.git",
       "ref": "main",
-      "commit": "321ccfe628eca0d314b0ee4eaffcdd8a05639aaf",
+      "commit": "123037ec8aed26f0d86327cc39137ee5043e5deb",
       "kind": "plugin",
       "attribution": "Trail of Bits; Differential Review by Omar Inuwa",
       "license": {
@@ -123,12 +123,12 @@
           "path": "plugins/differential-review",
           "name": "differential-review",
           "destination": "vendor/trailofbits/differential-review",
-          "tree": "71281098ced2d7d1e0892f41b8abcd839a4364dc"
+          "tree": "cca619df7d2e84f56695ddb3813565b0e0886460"
         }
       ],
       "marketplace": "trailofbits",
       "marketplace_path": ".claude-plugin/marketplace.json",
-      "marketplace_entry_sha256": "8c23db6be029d660b640d3bfd6d673dd3484e9c6cddc4ad5ec4e8df60dfc11e3",
+      "marketplace_entry_sha256": "5d8f7bd116b8e5dc3ac630492ea61b1eb46266ec8cd17fe3237217c095b99a90",
       "snapshot_sha256": "955f3d93a1f94572c86713cedd0d6402107e27c45f0386b8ecbabdc392ac1553"
     }
   ]
